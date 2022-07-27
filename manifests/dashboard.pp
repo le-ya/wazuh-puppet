@@ -88,7 +88,6 @@ class wazuh::dashboard (
     }
   }
 
-<<<<<<< HEAD
   file { '/etc/wazuh-dashboard/opensearch_dashboards.yml':
     content => template('wazuh/wazuh_dashboard_yml.erb'),
     group   => $dashboard_filegroup,
@@ -119,7 +118,6 @@ class wazuh::dashboard (
       require => Package['wazuh-dashboard'],
       before  => Service['wazuh-dashboard'],
     }
-=======
   # TODO: Fully manage the opensearch_dashboards.yml and a template file resource
   file_line { 'Setting host for wazuh-dashboard':
     path    => '/etc/wazuh-dashboard/opensearch_dashboards.yml',
@@ -134,7 +132,6 @@ class wazuh::dashboard (
     match   => "^server.port:\s",
     require => Package['wazuh-dashboard'],
     notify  => Service['wazuh-dashboard'],
->>>>>>> c1f059e... Fix dependencies
   }
 
   service { 'wazuh-dashboard':
