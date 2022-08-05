@@ -38,7 +38,7 @@ class wazuh::filebeat_oss (
   file { '/etc/filebeat/filebeat.yml':
     owner   => 'root',
     group   => 'root',
-    mode    => '0640',p
+    mode    => '0640',
     notify  => Service['filebeat'], ## Restarts the service
     content => template('wazuh/filebeat_oss_yml.erb'),
     require => Package['filebeat'],

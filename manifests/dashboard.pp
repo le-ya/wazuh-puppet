@@ -4,23 +4,32 @@ class wazuh::dashboard (
   $dashboard_package = 'wazuh-dashboard',
   $dashboard_service = 'wazuh-dashboard',
   $dashboard_version = '4.4.3',
-  $dashboard_user = 'kibanaserver',
-  $dashboard_password = 'kibanaserver',
   $indexer_server_ip = 'localhost',
   $indexer_server_port = '9200',
   $dashboard_path_certs = '/etc/wazuh-dashboard/certs',
   $dashboard_fileuser = 'wazuh-dashboard',
   $dashboard_filegroup = 'wazuh-dashboard',
 
+  Enum['https','http'] $dashboard_server_protocol = 'https',
   $dashboard_server_port = '443',
   $dashboard_server_host = '0.0.0.0',
   $dashboard_server_hosts = "https://${indexer_server_ip}:${indexer_server_port}",
+
+  # Parameters used for OpenID login
+  $enable_openid_login = undef,
+  $opensearch_ssl_verificationmode = undef,
+  $opensearch_security_auth_type = undef,
+  $opensearch_security_openid_connect_url = undef,
+  $opensearch_security_openid_client_id = undef,
+  $opensearch_security_openid_client_secret = undef,
+  $opensearch_security_openid_base_redirect_url = undef,
+  $opensearch_security_openid_verify_hostnames = undef,
 
   # If the keystore is used, the credentials are not managed by the module (TODO).
   # If use_keystore is false, the keystore is deleted, the dashboard use the credentials in the configuration file.
   $use_keystore = true,
   $dashboard_user = 'kibanaserver',
-  $dashboard_password = 'kibanaserver',
+  $dashboard_password = 'admin',
 
   $dashboard_wazuh_api_credentials = [
     {
@@ -32,13 +41,21 @@ class wazuh::dashboard (
     },
   ],
 
-  $manage_certs = true,
-  $manage_repos = false, # Change to true when manager is not present.
+  $manage_certs = false,
+  $manage_repos = true, # Change to true when manager is not present.
   $use_system_ca = false,
 ) {
+  notify { 'manage_repos':
+    message => $manage_repos,
+  }
   if $manage_repos {
     include wazuh::repo
-
+    notify { 'osfamily':
+      message => $::osfamily,
+    }
+    notify { 'os':
+      message => $::osfamily,
+    }
     if $::osfamily == 'Debian' {
       Class['wazuh::repo'] -> Class['apt::update'] -> Package['wazuh-dashboard']
     } else {
@@ -93,7 +110,7 @@ class wazuh::dashboard (
     notify  => Service['wazuh-dashboard'],
   }
 
-  file { [ '/usr/share/wazuh-dashboard/data/wazuh/', '/usr/share/wazuh-dashboard/data/wazuh/config' ]:
+  file { ['/usr/share/wazuh-dashboard/data/wazuh/', '/usr/share/wazuh-dashboard/data/wazuh/config']:
     ensure  => 'directory',
     group   => $dashboard_filegroup,
     mode    => '0755',
@@ -105,21 +122,6 @@ class wazuh::dashboard (
     group   => $dashboard_filegroup,
     mode    => '0600',
     owner   => $dashboard_fileuser,
-    notify  => Service['wazuh-dashboard'],
-  }
-
-  unless $use_keystore {
-    file { '/usr/share/wazuh-dashboard/config/opensearch_dashboards.keystore':
-      ensure  => absent,
-      require => Package['wazuh-dashboard'],
-      before  => Service['wazuh-dashboard'],
-    }
-  file { '/etc/wazuh-dashboard/opensearch_dashboards.yml':
-    content => template('wazuh/wazuh_dashboard_yml.erb'),
-    group   => $dashboard_filegroup,
-    mode    => '0640',
-    owner   => $dashboard_fileuser,
-    require => Package['wazuh-dashboard'],
     notify  => Service['wazuh-dashboard'],
   }
 
