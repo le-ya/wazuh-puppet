@@ -44,19 +44,9 @@ class wazuh::dashboard (
     }
   }
 
-  # assign version according to the package manager
-  case $facts['os']['family'] {
-    'Debian': {
-      $dashboard_version_install = "${dashboard_version}-*"
-    }
-    'Linux', 'RedHat', default: {
-      $dashboard_version_install = $dashboard_version
-    }
-  }
-
   # install package
   package { 'wazuh-dashboard':
-    ensure => $dashboard_version_install,
+    ensure => $dashboard_version,
     name   => $dashboard_package,
   }
 
