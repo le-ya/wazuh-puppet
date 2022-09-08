@@ -121,6 +121,14 @@ class wazuh::dashboard (
     notify  => Service['wazuh-dashboard'],
   }
 
+  unless $use_keystore {
+    file { '/usr/share/wazuh-dashboard/config/opensearch_dashboards.keystore':
+      ensure  => absent,
+      require => Package['wazuh-dashboard'],
+      before  => Service['wazuh-dashboard'],
+    }
+  }
+
   service { 'wazuh-dashboard':
     ensure     => running,
     enable     => true,
