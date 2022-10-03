@@ -59,21 +59,19 @@ class wazuh::filebeat_oss (
     ensure => directory,
     mode   => '0755',
   }
-  -> archive { "/tmp/${wazuh_filebeat_module}":
+  -> archive { "/tmp/${$wazuh_filebeat_module}":
     ensure       => present,
     source       => "https://packages.wazuh.com/4.x/filebeat/${wazuh_filebeat_module}",
     extract      => true,
-    extract_path => '/usr/share/filebeat/module',
-    creates      => '/usr/share/filebeat/module/wazuh',
+    extract_path => $wazuh_filebeat_module_dir,
+    creates      => "${wazuh_filebeat_module_dir}/wazuh",
     cleanup      => true,
-    notify       => Service['filebeat'],
-    require      => Package['filebeat'],
   }
-
-  file { '/usr/share/filebeat/module/wazuh':
-    ensure  => 'directory',
-    mode    => '0755',
+  -> file { '/usr/share/filebeat/module/wazuh':
+    ensure  => link,
+    target  => "${wazuh_filebeat_module_dir}/wazuh",
     require => Package['filebeat'],
+    notify  => Service['filebeat'],
   }
 
   if $manage_certs {
