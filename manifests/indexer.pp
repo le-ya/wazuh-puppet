@@ -42,6 +42,8 @@ class wazuh::indexer (
   package { 'wazuh-indexer':
     ensure => $indexer_version,
     name   => $indexer_package,
+  } -> notify { 'install wazuh-indexer':
+      message => 'Wazuh Indexer installed',
   }
 
   if $manage_certs {
@@ -99,22 +101,6 @@ class wazuh::indexer (
   file_line { 'Insert line maximum size of total heap space':
     path    => '/etc/wazuh-indexer/jvm.options',
     line    => "-Xmx${jvm_options_memory}",
-    match   => '^-Xmx',
-    require => Package['wazuh-indexer'],
-    notify  => Service['wazuh-indexer'],
-  }
-
-  file_line { 'Insert line initial size of total heap space':
-    path    => '/etc/wazuh-indexer/jvm.options',
-    line    => "-Xms${jvm_options_memmory}",
-    match   => '^-Xms',
-    require => Package['wazuh-indexer'],
-    notify  => Service['wazuh-indexer'],
-  }
-
-  file_line { 'Insert line maximum size of total heap space':
-    path    => '/etc/wazuh-indexer/jvm.options',
-    line    => "-Xmx${jvm_options_memmory}",
     match   => '^-Xmx',
     require => Package['wazuh-indexer'],
     notify  => Service['wazuh-indexer'],
