@@ -85,6 +85,12 @@ class wazuh::indexer (
     notify  => Service['wazuh-indexer'],
   }
 
+  file { '/usr/share/wazuh-indexer/plugins/opensearch-security/securityconfig/config.yml':
+    content => template('wazuh/opensearch_security_config.yml.erb'),
+    require => Package['wazuh-indexer'],
+    notify  => Service['wazuh-indexer'],
+  }
+
   file_line { 'Insert line initial size of total heap space':
     path    => '/etc/wazuh-indexer/jvm.options',
     line    => "-Xms${jvm_options_memory}",
