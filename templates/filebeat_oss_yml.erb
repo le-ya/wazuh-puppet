@@ -27,6 +27,8 @@ output.elasticsearch:
 <% end -%>
   ssl.certificate: "/etc/filebeat/certs/filebeat.pem"
   ssl.key: "/etc/filebeat/certs/filebeat-key.pem"
+  ssl.certificate_authorities: ["/etc/filebeat/certs/root-ca.pem"]
+
 
 setup.ilm.enabled: false
 
